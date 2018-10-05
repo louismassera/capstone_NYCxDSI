@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.1">
+  <Document>
+    <name>Staten Island Traffic Jams</name>
+    <description>Staten Island Traffic Jams</description>
+
+    <Style id="redLine">
+      <LineStyle>
+        <color>ff0000ff</color>
+        <width>4</width>
+      </LineStyle>
+    </Style>
+    
+
+    <Placemark>
+      <name>Red Line</name>
+      <styleUrl>#redLine</styleUrl>
+      <LineString>
+        <altitudeMode>relative</altitudeMode>
+        <coordinates>
+-74.078302, 40.635287,0
+-74.078454, 40.634864,0
+-74.078709, 40.634066,0
+-74.078992, 40.633192,0
+-74.079088, 40.632886,0
+-74.079365, 40.632225,0
+-74.080356, 40.631211,0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+    <Placemark>
+      <name>Red Line</name>
+      <styleUrl>#redLine</styleUrl>
+      <LineString>
+        <altitudeMode>relative</altitudeMode>
+        <coordinates>
+-74.131988, 40.607592, 0
+-74.131892, 40.606677, 0
+-74.131769, 40.605573, 0
+-74.131569, 40.603769, 0
+        </coordinates>
+      </LineString>
+    </Placemark>
+
+
+  </Document>
+</kml>
