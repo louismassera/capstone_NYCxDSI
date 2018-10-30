@@ -6,6 +6,7 @@ import os
 import json
 import pandas as pd
 import datetime
+import math
 
 #not in use
 def openfile(fn):
@@ -53,14 +54,39 @@ def iso_utc_millis_col(col_name,new_col_name, df):
 def reorder_cols(cols_order, df):
 	return df[cols_order]
 
+dico_road = {1: 'Streets',
+             2: 'Primary Street',
+             3: 'Freeways',
+             4: 'Ramps',
+             5: 'Trails',
+             6: 'Primary',
+             7: 'Secondary',
+             8: '4X4 Trails', 
+             14: '4X4 Trails',
+             15: 'Ferry crossing',
+             9: 'Walkway',
+             10:'Pedestrian',
+             11:'Exit',
+             16:'Stairway',
+             17:'Private road',
+             18:'Railroads',
+             19: 'Runway/Taxiway',
+             20: 'Parking lot road',
+             21: 'Service road'}
+
+def translate_road_type(i):
+    if math.isnan(i):
+        return 'None'
+    else:
+        return dico_road[i]
+
 def transform_alerts(data):
-	#alerts = json_to_dataframe(data, "alerts")
 	alerts = replace_city_col(data)
 	alerts = iso_utc_millis_col('pubMillis','pub_utc_date',alerts)
 	alerts['reportDescription'] = alerts['reportDescription'].str.replace('\r\n',' ')
 	order_als = ['uuid','city','state','country','confidence','location','magvar',
-					'nThumbsUp','reliability','reportDescription','reportRating',
-					'roadType','street','subtype','type','pubMillis','pub_utc_date']
+					'nThumbsUp','reliability','reportDescription', 'reportByMunicipalityUser', 
+					'reportRating', 'roadType','street','subtype','type','pubMillis','pub_utc_date']
 
 	alerts = reorder_cols(order_als, alerts)
 	
@@ -70,22 +96,22 @@ def transform_alerts(data):
 	        'roadType': 'road_type',
 	        'reportDescription': 'report_description',
 	        'reportRating': 'report_rating',
-	        'nThumbsUp': 'thumbs_up'
+	        'nThumbsUp': 'thumbs_up',
+	        'reportByMunicipalityUser': 'report_by_municipality_user'
 	    }, 
 	    inplace=True
 	)
+
+	alerts['road_type'] = alerts.road_type.apply(translate_road_type)
 	return alerts
 
 def transform_jams(data):
-	#jams = json_to_dataframe(data, JAMS)
-	print('in jams')
-	print()
 	jams = replace_city_col(data)
 	jams = iso_utc_millis_col('pubMillis','pub_utc_date',jams)
 	
 	#uuid and id are the same, keeping uuid
-	order_jms = ['uuid','blockingAlertUuid', 'city', 'state', 'country', 'delay', 
-			'endNode', 'length', 'level', 'line', 'roadType', 'street','segments', 
+	order_jms = ['uuid','blockingAlertUuid', 'city', 'state', 'country', 'delay', 'startNode',
+			'endNode', 'length', 'level', 'line', 'roadType', 'street','segments',
 			'speed','speedKMH','turnType', 'type', 'pubMillis','pub_utc_date']
 
 	jams = reorder_cols(order_jms, jams)
@@ -97,10 +123,12 @@ def transform_jams(data):
 	        'blockingAlertUuid': 'blocking_alert_uuid',
 	        'endNode': 'end_node',
 	        'speedKMH': 'speed_KMH',
-	        'turnType': 'turn_type'
+	        'turnType': 'turn_type',
+	        'startNode': 'start_node'
 	    }, 
 	    inplace=True
 	)
+	jams['road_type'] = jams.road_type.astype('float64').apply(translate_road_type)
 	return jams
 
 def transform_irreg(data):
@@ -111,7 +139,7 @@ def transform_irreg(data):
 	
 	order_irs = ['id','alerts', 'alertsCount', 'causeAlert', 'causeType', 'city', 'state','country',
        'delaySeconds', 'detectionDate', 'detectionDateMillis', 'detection_utc_date','driversCount',
-       'endNode', 'highway',  'jamLevel', 'length', 'line', 'nComments',
+       'endNode', 'highway',  'jamLevel', 'length', 'line', 'nComments', 'startNode',
        'nImages', 'nThumbsUp', 'regularSpeed', 'seconds', 'severity', 'speed',
        'street', 'trend', 'type', 'updateDate', 'updateDateMillis', 'update_utc_date',
        ]
@@ -135,6 +163,7 @@ def transform_irreg(data):
 	        'regularSpeed': 'regular_speed',
 	        'updateDate': 'update_date', 
 	        'updateDateMillis': 'update_date_millis',
+	        'startNode': 'start_node'
 	    }, 
 	    inplace=True
 	)
